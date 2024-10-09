@@ -18,15 +18,16 @@ SUPBASE_URL = os.getenv('SUPBASE_URL')
 SUPBASE_KEY = os.getenv('SUPBASE_KEY')
 supabase = create_client(SUPBASE_URL, SUPBASE_KEY)
 
-#We are considering offering this service in multiple languages English, Spanish, Korean etc with release of our next version. If you would be interested in this service.  Please text us back with the language of your choice.
+#We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back with the language of your choice.
 
 sms_template = Template('''
 Hi! $name
 Good day!
-To prepare for your follow-up appointment with Dr. Pallickal, please complete the brief Google Form linked here: $form. This will help us gather important information for your visit.  Your visit is cheduled for:
+To prepare for your follow-up appt. with Dr. Pallickal, pls. complete this brief Google Form : $form. This will help us gather important information for your visit scheduled on:
 $aptmt.
-We kindly ask that you fill out the form at least 48 hours before your appointment and arrive at the clinic at least 30 mins prior to the scheduled time . We are trying out a new AI system to increase the efficiency of our visits and to capture all the information relevant to your care.
- As this is a new system there may be some glitches initially, please feel free to ignore any questions if you don't feel they are appropriate to your care.
+We kindly ask that you fill out the form at least 48 hours before and arrive at least 30 mins prior to the scheduled appointment . We are trying out a new AI system to increase the efficiency of our visits and to capture all the information relevant to your care.
+ As this is a new system there may be some glitches initially, pls. feel free to ignore any questions if you don't feel they are appropriate to your care.
+ We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back the language of your choice.
  If you have any questions or you would prefer not to get any text messages from this number, please contact us anytime at clinic.notes3@gmail.com.
 Thank you!
 Best,
@@ -175,7 +176,7 @@ if __name__ == "__main__":
     
     
     parser = argparse.ArgumentParser(description="Process an input file.")
-    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-1-24.xlsx',
+    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
                         help='Input file to process (default: default.txt)')
 
     args = parser.parse_args()
@@ -214,12 +215,15 @@ if __name__ == "__main__":
     # Print the number of dropped rows
     print(f"\nNumber of rows dropped: {len(rows_with_nan)}")
 
-    
+    start = 7
     import pdb; pdb.set_trace()
     for index, row in df1c.iterrows():
     
         try:
             print(f"Index: {index}, Row: {row}")
+            
+            if(index < start):
+                continue
             
             name = row[matched_columns[0]]
             form_link = row[matched_columns[1]]
