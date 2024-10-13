@@ -195,7 +195,7 @@ def Txt_GoogleForm(msg, my_phone_number = os.getenv('MY_PHONE_NUMBER')):
     store_message(twilio_phone_number, my_phone_number, outgoing_message)
 
 
-def send_follow_up_forms(df1,fpath,):
+def send_follow_up_forms(df1,fpath):
 
     # Your original columns
     columns_to_check = ['first_name', 'URL', 'Text']
@@ -238,11 +238,10 @@ def send_follow_up_forms(df1,fpath,):
                 
             phone_number = reformat_number(row[matched_columns[2]])
             
-            flpath = fl
             #import pdb; pdb.set_trace()
-            aptmtstr =  create_appointment_string(row, flpath)
+            aptmtstr, fname =  create_appointment_string(row, fpath)
             
-            sms = sms_template1.substitute(name=name,form=form_link,aptmt=aptmtstr)
+            sms = sms_template1.substitute(name=fname,form=form_link,aptmt=aptmtstr)
 
     
             print(f"Texting {phone_number}  \n\n Form : {form_link} \n\n  Msg-len: {len(sms)} \n\n Msg: {sms} ")
@@ -259,33 +258,9 @@ def send_follow_up_forms(df1,fpath,):
             print(f"An error occurred: {e}")
             continue
             
-            
 
-import argparse
+def send_aptmt_reminder(df1,fpath):
 
-if __name__ == "__main__":
-    # Example usage: Send a Google Form link
-    
-    
-    parser = argparse.ArgumentParser(description="Process an input file.")
-    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
-                        help='Input file to process (default: default.txt)')
-
-    args = parser.parse_args()
-    
-    #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
-    
-    fpath= args.input_file
-    
-    print(f"Processing input file: {fpath}")
-    
-    skiprows = 1
-    df1 =  pd.read_excel(fpath, skiprows=skiprows)
-    
-    #send_follow_up_forms(df1,fpath)
-    
-    #  Try sending follow reminder texts
-    
     # Your original columns
     columns_to_check = ['first_name', 'Text']
 
@@ -348,3 +323,34 @@ if __name__ == "__main__":
             continue
     
         
+
+    
+
+import argparse
+
+if __name__ == "__main__":
+    # Example usage: Send a Google Form link
+    
+    
+    parser = argparse.ArgumentParser(description="Process an input file.")
+    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
+                        help='Input file to process (default: default.txt)')
+
+    args = parser.parse_args()
+    
+    #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
+    
+    fpath= args.input_file
+    
+    print(f"Processing input file: {fpath}")
+    
+    skiprows = 1
+    df1 =  pd.read_excel(fpath, skiprows=skiprows)
+    
+    #send_aptmt_reminder(df1,fpath)
+    
+    send_follow_up_forms(df1,fpath)
+    
+    #  Try sending follow reminder texts
+    
+    
