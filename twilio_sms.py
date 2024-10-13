@@ -1,3 +1,6 @@
+'''  python twilio_sms.py '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-17-24/patient_schedule_10-17-24.xlsx'
+'''
+
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
@@ -215,7 +218,7 @@ if __name__ == "__main__":
     # Print the number of dropped rows
     print(f"\nNumber of rows dropped: {len(rows_with_nan)}")
 
-    start = 7
+    start = 0
     import pdb; pdb.set_trace()
     for index, row in df1c.iterrows():
     
