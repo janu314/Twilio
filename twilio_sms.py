@@ -10,6 +10,7 @@ from flash import store_message
 import pandas as pd
 from string import Template
 import webbrowser
+import numpy as np
 
 
 
@@ -23,19 +24,36 @@ supabase = create_client(SUPBASE_URL, SUPBASE_KEY)
 
 #We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back with the language of your choice.
 
-sms_template = Template('''
+sms_template1 = Template('''
 Hi! $name
 Good day!
 To prepare for your follow-up appt. with Dr. Pallickal, pls. complete this brief Google Form : $form. This will help us gather important information for your visit scheduled on:
 $aptmt.
+ We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back the language of your choice.
 We kindly ask that you fill out the form at least 48 hours before and arrive at least 30 mins prior to the scheduled appointment . We are trying out a new AI system to increase the efficiency of our visits and to capture all the information relevant to your care.
  As this is a new system there may be some glitches initially, pls. feel free to ignore any questions if you don't feel they are appropriate to your care.
- We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back the language of your choice.
  If you have any questions or you would prefer not to get any text messages from this number, please contact us anytime at clinic.notes3@gmail.com.
 Thank you!
 Best,
 Norinne
 Medical Assistant ''')
+
+
+sms_template2 = Template('''
+Hello $name\n
+
+Good day! This a friendly reminder for your upcoming appointment with  Dr. Pallickal.  Your appointment details are as follows:\n
+$aptmt.\n
+
+We kindly request you to arrive at least 30 mins prior to the scheduled appointment.\n
+
+This is an automated message; if you have any questions or you would prefer not to get any text messages from this number, please contact us anytime at clinic.notes3@gmail.com.\n
+
+Thank you!
+Best,
+Norinne
+Medical Assistant ''')
+
 
 
 import pandas as pd
@@ -112,10 +130,15 @@ def create_appointment_string(row, file_path):
     formatted_time = time_obj.strftime('%I:%M %p').lstrip('0')  # Remove leading zero
 
     # Create the formatted appointment string
-    appt_string = f"{row['full_name'].strip()} {date} {formatted_time} PST"
+    #appt_string1 = f"{row['full_name'].strip()} {date} {formatted_time} PST"
 
+    fname = row['full_name'].strip()
+    datestr = f"Date : {date}"
+    ftime = f"{formatted_time} PST"
+    
+    appt_string = f"{fname}\n{datestr}\n{ftime}"
 
-    return appt_string
+    return appt_string, fname
 
 # Example usage:
 # Assuming df is your DataFrame and file_path is the path to your Excel file
@@ -172,7 +195,7 @@ def Txt_GoogleForm(msg, my_phone_number = os.getenv('MY_PHONE_NUMBER')):
     store_message(twilio_phone_number, my_phone_number, outgoing_message)
 
 
-def send_follow_up_forms(df1):
+def send_follow_up_forms(df1,fpath,):
 
     # Your original columns
     columns_to_check = ['first_name', 'URL', 'Text']
@@ -180,6 +203,8 @@ def send_follow_up_forms(df1):
     # Get the matched columns
     
     matched_columns = fuzzy_column_match(df1, columns_to_check)
+    df1[matched_columns] = df1[matched_columns].replace(' ', np.nan)
+
     
     # Drop rows with NaN in the matched columns
     df1c = df1.dropna(subset=matched_columns)
@@ -217,7 +242,7 @@ def send_follow_up_forms(df1):
             #import pdb; pdb.set_trace()
             aptmtstr =  create_appointment_string(row, flpath)
             
-            sms = sms_template.substitute(name=name,form=form_link,aptmt=aptmtstr)
+            sms = sms_template1.substitute(name=name,form=form_link,aptmt=aptmtstr)
 
     
             print(f"Texting {phone_number}  \n\n Form : {form_link} \n\n  Msg-len: {len(sms)} \n\n Msg: {sms} ")
@@ -250,12 +275,76 @@ if __name__ == "__main__":
     
     #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
     
-    fl= args.input_file
+    fpath= args.input_file
     
-    print(f"Processing input file: {fl}")
+    print(f"Processing input file: {fpath}")
     
     skiprows = 1
-    df1 =  pd.read_excel(fl, skiprows=skiprows)
+    df1 =  pd.read_excel(fpath, skiprows=skiprows)
     
-    send_follow_up_forms(df1)
+    #send_follow_up_forms(df1,fpath)
+    
+    #  Try sending follow reminder texts
+    
+    # Your original columns
+    columns_to_check = ['first_name', 'Text']
+
+    # Get the matched columns
+
+    matched_columns = fuzzy_column_match(df1, columns_to_check)
+    
+    df1[matched_columns] = df1[matched_columns].replace(' ', np.nan)
+    
+    # Drop rows with NaN in the matched columns
+    df1c = df1.dropna(subset=matched_columns)
+    
+    print(f"Matched columns: {matched_columns}")
+    print(f"Shape before dropping: {df1.shape}")
+    print(f"Shape after dropping: {df1c.shape}")
+    
+    # Identify rows with NaN in the matched columns
+    rows_with_nan = df1[df1[matched_columns].isna().any(axis=1)]
+
+    # Print dropped rows
+    print("\nDropped rows:")
+    print(rows_with_nan)
+
+    # Print the number of dropped rows
+    print(f"\nNumber of rows dropped: {len(rows_with_nan)}")
+
+    
+    start = 0
+    import pdb; pdb.set_trace()
+    for index, row in df1c.iterrows():
+    
+        try:
+            print(f"Index: {index}, Row: {row}")
+            
+            if(index < start):
+                continue
+                
+                
+            phone_number = reformat_number(row[matched_columns[1]])
+            
+            #flpath = fl
+            #import pdb; pdb.set_trace()
+            aptmtstr, fname =  create_appointment_string(row, fpath)
+            
+            sms = sms_template2.substitute(name=fname,aptmt=aptmtstr)
+
+    
+            print(f"Texting {phone_number}   \n\n  Msg-len: {len(sms)} \n\n Msg: {sms} ")
+            
+            
+            import pdb; pdb.set_trace();
+            Txt_GoogleForm(sms,phone_number)
+            
+                
+            
+        except Exception as e:
+            # Handle exceptions here
+            import pdb; pdb.set_trace();
+            print(f"An error occurred: {e}")
+            continue
+    
         
