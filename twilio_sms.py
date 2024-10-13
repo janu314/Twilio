@@ -172,28 +172,8 @@ def Txt_GoogleForm(msg, my_phone_number = os.getenv('MY_PHONE_NUMBER')):
     store_message(twilio_phone_number, my_phone_number, outgoing_message)
 
 
-import argparse
+def send_follow_up_forms(df1):
 
-if __name__ == "__main__":
-    # Example usage: Send a Google Form link
-    
-    
-    parser = argparse.ArgumentParser(description="Process an input file.")
-    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
-                        help='Input file to process (default: default.txt)')
-
-    args = parser.parse_args()
-    
-    #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
-    
-    fl= args.input_file
-    
-    print(f"Processing input file: {fl}")
-    
-    skiprows = 1
-    df1 =  pd.read_excel(fl, skiprows=skiprows)
-    #df1.rename(columns={col: 'Text' for col in df1.columns if 'Text' in col}, inplace=True)
-        
     # Your original columns
     columns_to_check = ['first_name', 'URL', 'Text']
 
@@ -253,4 +233,29 @@ if __name__ == "__main__":
             import pdb; pdb.set_trace();
             print(f"An error occurred: {e}")
             continue
+            
+            
+
+import argparse
+
+if __name__ == "__main__":
+    # Example usage: Send a Google Form link
+    
+    
+    parser = argparse.ArgumentParser(description="Process an input file.")
+    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
+                        help='Input file to process (default: default.txt)')
+
+    args = parser.parse_args()
+    
+    #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
+    
+    fl= args.input_file
+    
+    print(f"Processing input file: {fl}")
+    
+    skiprows = 1
+    df1 =  pd.read_excel(fl, skiprows=skiprows)
+    
+    send_follow_up_forms(df1)
         
