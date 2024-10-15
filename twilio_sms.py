@@ -127,13 +127,28 @@ def create_appointment_string(row, file_path):
     #import pdb; pdb.set_trace();
     # Parse the time and add AM/PM
     time_obj = datetime.strptime(row['time'], '%H:%M')
-    formatted_time = time_obj.strftime('%I:%M %p').lstrip('0')  # Remove leading zero
+    
+    # Get the hour as an integer
+    hour = time_obj.hour
+
+    # Custom logic to assign AM/PM
+    if 1 <= hour <= 6:
+        period = 'PM'  # Times between 1:00 and 6:00 are likely PM
+    else:
+        period = 'AM'  # All other times default to AM (you can tweak this rule as needed)
+
+    # Format the time without leading zeros for hours
+    formatted_time = f'{hour}:{time_obj.strftime("%M")} {period}'
+
+    print(formatted_time)
+    #formatted_time = time_obj.strftime('%I:%M %p').lstrip('0')  # Remove leading zero
 
     # Create the formatted appointment string
     #appt_string1 = f"{row['full_name'].strip()} {date} {formatted_time} PST"
 
     fname = row['full_name'].strip()
     datestr = f"Date : {date}"
+    
     ftime = f"{formatted_time} PST"
     
     appt_string = f"{fname}\n{datestr}\n{ftime}"
@@ -347,9 +362,9 @@ if __name__ == "__main__":
     skiprows = 1
     df1 =  pd.read_excel(fpath, skiprows=skiprows)
     
-    #send_aptmt_reminder(df1,fpath)
+    send_aptmt_reminder(df1,fpath)
     
-    send_follow_up_forms(df1,fpath)
+    #send_follow_up_forms(df1,fpath)
     
     #  Try sending follow reminder texts
     
