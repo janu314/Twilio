@@ -11,6 +11,9 @@ import pandas as pd
 from string import Template
 import webbrowser
 import numpy as np
+import os
+import pyshorteners
+
 
 
 
@@ -30,7 +33,7 @@ Good day!
 To prepare for your follow-up appt. with Dr. Pallickal, pls. complete this brief Google Form : $form. This will help us gather important information for your visit scheduled on:
 $aptmt.
  We are considering offering this service in multiple languages English, Spanish etc. If you would be interested; pls. text us back the language of your choice.
-We kindly ask that you fill out the form at least 48 hours before and arrive at least 30 mins prior to the scheduled appointment . We are trying out a new AI system to increase the efficiency of our visits and to capture all the information relevant to your care.
+We kindly ask that you fill out the form at least 24 hours before and arrive at least 30 mins prior to the scheduled appointment . We are trying out a new AI system to increase the efficiency of our visits and to capture all the information relevant to your care.
  As this is a new system there may be some glitches initially, pls. feel free to ignore any questions if you don't feel they are appropriate to your care.
  If you have any questions or you would prefer not to get any text messages from this number, please contact us anytime at clinic.notes3@gmail.com.
 Thank you!
@@ -250,18 +253,29 @@ def send_follow_up_forms(df1,fpath):
             
             name = row[matched_columns[0]]
             form_link = row[matched_columns[1]]
+            
+            # Create an instance of Shortener
+            s = pyshorteners.Shortener()
+
+
+            # Shorten the URL
+            short_url = s.tinyurl.short(form_link)
+
+            #import pdb; pdb.set_trace()
+            print('Shortened URL:', short_url)
+
                 
             phone_number = reformat_number(row[matched_columns[2]])
             
             #import pdb; pdb.set_trace()
             aptmtstr, fname =  create_appointment_string(row, fpath)
             
-            sms = sms_template1.substitute(name=fname,form=form_link,aptmt=aptmtstr)
+            sms = sms_template1.substitute(name=fname,form=short_url,aptmt=aptmtstr)
 
     
-            print(f"Texting {phone_number}  \n\n Form : {form_link} \n\n  Msg-len: {len(sms)} \n\n Msg: {sms} ")
+            print(f"Texting {phone_number}  \n\n Form : {short_url} \n\n  Msg-len: {len(sms)} \n\n Msg: {sms} ")
             
-            webbrowser.open(form_link)
+            webbrowser.open(short_url)
 
             
             import pdb; pdb.set_trace();
@@ -342,6 +356,7 @@ def send_aptmt_reminder(df1,fpath):
     
 
 import argparse
+import subprocess
 
 if __name__ == "__main__":
     # Example usage: Send a Google Form link
@@ -359,12 +374,25 @@ if __name__ == "__main__":
     
     print(f"Processing input file: {fpath}")
     
+    # Check if the file exists
+    if os.path.exists(fpath):
+        # Open the file
+        # Open the file with the default application
+        # Open the file with the default application
+        subprocess.run(['open', fpath])
+
+    else:
+        print(f"The file {fpath} does not exist.")
+
+    
     skiprows = 1
     df1 =  pd.read_excel(fpath, skiprows=skiprows)
     
-    send_aptmt_reminder(df1,fpath)
+    import pdb; pdb.set_trace();
     
-    #send_follow_up_forms(df1,fpath)
+    #send_aptmt_reminder(df1,fpath)
+    
+    send_follow_up_forms(df1,fpath)
     
     #  Try sending follow reminder texts
     
