@@ -241,7 +241,7 @@ def send_follow_up_forms(df1,fpath):
     # Print the number of dropped rows
     print(f"\nNumber of rows dropped: {len(rows_with_nan)}")
 
-    start = 0
+    start = 1
     import pdb; pdb.set_trace()
     for index, row in df1c.iterrows():
     
@@ -387,6 +387,16 @@ if __name__ == "__main__":
     
     skiprows = 1
     df1 =  pd.read_excel(fpath, skiprows=skiprows)
+    
+    #Fix the DOB
+    df1['DOB'] = pd.to_datetime(df1['DOB'], errors='coerce')  # errors='coerce' will handle invalid dates
+    
+    # Step 2: Calculate age
+    today = pd.to_datetime(datetime.today().date())  # Get today's date
+    df1['age'] = df1['DOB'].apply(lambda x: (today - x).days // 365 if not pd.isnull(x) else None)
+
+    # Step 3: Display the DataFrame with the new 'age' column
+    print(df1[['DOB', 'age']])
     
     import pdb; pdb.set_trace();
     
