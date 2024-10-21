@@ -45,7 +45,8 @@ def sms_reply():
 
     # Prepare the response message
     outgoing_message = f"Hello, you said: {incoming_message}. "
-    outgoing_message += "This is an automated message. For questions, email support at clinic.notes3@gmail.com."
+    outgoing_message += "Pls. note : this is an automated message. For questions, email support at clinic.notes3@gmail.com"
+    outgoing_message += "If you requested a language change, it will be implemented in our next version 2.0"
 
     # Store the incoming message
     store_message(from_number, to_number, incoming_message)
