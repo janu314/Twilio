@@ -45,7 +45,7 @@ Medical Assistant ''')
 sms_template2 = Template('''
 Hello $name\n
 
-Good day! This a friendly reminder for your upcoming appointment with  Dr. Pallickal.  Your appointment details are as follows:\n
+Good day! This a friendly reminder for your upcoming appointment (tomorrow) with  Dr. Pallickal.  Your appointment details are as follows:\n
 $aptmt.\n
 
 We kindly request you to arrive at least 30 mins prior to the scheduled appointment.\n
@@ -135,10 +135,10 @@ def create_appointment_string(row, file_path):
     hour = time_obj.hour
 
     # Custom logic to assign AM/PM
-    if 1 <= hour <= 6:
-        period = 'PM'  # Times between 1:00 and 6:00 are likely PM
+    if 8 <= hour <= 11:
+        period = 'AM'  # Times between 1:00 and 6:00 are likely PM
     else:
-        period = 'AM'  # All other times default to AM (you can tweak this rule as needed)
+        period = 'PM'  # All other times default to AM (you can tweak this rule as needed)
 
     # Format the time without leading zeros for hours
     formatted_time = f'{hour}:{time_obj.strftime("%M")} {period}'
@@ -358,19 +358,24 @@ def send_aptmt_reminder(df1,fpath):
 import argparse
 import subprocess
 
-if __name__ == "__main__":
-    # Example usage: Send a Google Form link
-    
-    
-    parser = argparse.ArgumentParser(description="Process an input file.")
-    parser.add_argument('input_file', nargs='?', default='data/test_schedules_10-15-24.xlsx',
-                        help='Input file to process (default: default.txt)')
+import tkinter as tk
+from tkinter import filedialog
+import os
 
-    args = parser.parse_args()
-    
-    #fl = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/10-2-24/patient_schedule_10-2-24.xlsx'
-    
-    fpath= args.input_file
+if __name__ == "__main__":
+    # Create a root window and hide it
+    root = tk.Tk()
+    root.withdraw()
+
+    # Set the default directory
+    default_dir = '/Users/jsubramanian/MyCode/SUS/Cofounders/MedTech/sample_json/'
+
+    # Open the file dialog
+    fpath = filedialog.askopenfilename(
+        initialdir=default_dir,
+        title="Select input file",
+        filetypes=(("Excel files", "*.xlsx"), ("All files", "*.*"))
+    )
     
     print(f"Processing input file: {fpath}")
     
@@ -400,9 +405,9 @@ if __name__ == "__main__":
     
     import pdb; pdb.set_trace();
     
-    #send_aptmt_reminder(df1,fpath)
+    send_aptmt_reminder(df1,fpath)
     
-    send_follow_up_forms(df1,fpath)
+    #send_follow_up_forms(df1,fpath)
     
     #  Try sending follow reminder texts
     
